@@ -28,6 +28,7 @@ class Activity(db.Model, SerializerMixin):
     signups = db.relationship('Signup', backref='activity')
     
     # Add serialization rules
+    serialize_rules = ('-signups.activity',)
     
     def __repr__(self):
         return f'<Activity {self.id}: {self.name}>'
@@ -44,8 +45,20 @@ class Camper(db.Model, SerializerMixin):
     signups = db.relationship('Signup', backref='camper')
     
     # Add serialization rules
+    serialize_rules = ('-signups.camper',)
     
     # Add validation
+    @validates('name')
+    def validate_name(self, key, name):
+        if not isinstance(name, str) or len(name) < 1:
+            raise ValueError('Invalid name')
+        return name
+    
+    @validates('age')
+    def validate_age(self, key, age):
+        if not 8 <= age <= 18:
+            raise ValueError('to young')
+        return age
     
     
     def __repr__(self):
@@ -62,12 +75,18 @@ class Signup(db.Model, SerializerMixin):
     activity_id = db.Column(db.Integer, db.ForeignKey('activities.id'))
     camper_id = db.Column(db.Integer, db.ForeignKey('campers.id'))
 
-    activities = db.relationship('Activity', backref='signup')
-    campers = db.relationship('Camper', backref='signup')
+    # activity = db.relationship('Activity', backref='signup')
+    # camper = db.relationship('Camper', backref='signup')
     
     # Add serialization rules
+    serialize_rules = ('-camper.signups', '-activity.signups')
     
     # Add validation
+    @validates('time')
+    def validate_time(self, key, time):
+        if not 0 <= time <= 23:
+            raise ValueError('wrong clock man')
+        return time
     
     def __repr__(self):
         return f'<Signup {self.id}>'
