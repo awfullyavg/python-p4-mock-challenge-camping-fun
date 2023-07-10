@@ -25,6 +25,7 @@ class Activity(db.Model, SerializerMixin):
     difficulty = db.Column(db.Integer)
 
     # Add relationship
+    signups = db.relationship('Signup', backref='activity')
     
     # Add serialization rules
     
@@ -40,6 +41,7 @@ class Camper(db.Model, SerializerMixin):
     age = db.Column(db.Integer)
 
     # Add relationship
+    signups = db.relationship('Signup', backref='camper')
     
     # Add serialization rules
     
@@ -57,6 +59,11 @@ class Signup(db.Model, SerializerMixin):
     time = db.Column(db.Integer)
 
     # Add relationships
+    activity_id = db.Column(db.Integer, db.ForeignKey('activities.id'))
+    camper_id = db.Column(db.Integer, db.ForeignKey('campers.id'))
+
+    activities = db.relationship('Activity', backref='signup')
+    campers = db.relationship('Camper', backref='signup')
     
     # Add serialization rules
     
